@@ -17,10 +17,11 @@ public:
 private:
 	ADEDevice * * deviceList;
 	uint8_t deviceCounter;
-	int16_t deviceSecleted;  //The index of the device selected in deviceList.
+	int16_t deviceSecleted;  //The index of the device selected in deviceList equal to deviceID-1.
 public:
 	FxModbus * modbus;
 public:
+	bool initManager();
 	bool updateDeciceList();
 	uint8_t getDeviceCounter() const;
 	bool selectDevice(uint8_t deviceID);

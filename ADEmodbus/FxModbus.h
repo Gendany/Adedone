@@ -2,8 +2,8 @@
 #include "modbus.h"
 enum MODBUS_MODE
 {
-	RTU,
-	TCP
+	FXMODBUS_RTU,
+	FXMODBUS_TCP
 };
 
 struct RTUParameters
@@ -32,25 +32,36 @@ private:
 	TCPParameters* tcpParameters;
 	RTUParameters* rtuParameters;
 	modbus_t* ctx;
+	uint8_t slaveId;
 public:
-	MODBUS_MODE getModbusMode();
+	uint8_t getSlaveId() const
+	{
+		return this->slaveId;
+	}
+	void setSlaveId(const uint8_t slave_id)
+	{
+		this->slaveId = slave_id;
+	}
+
+	MODBUS_MODE getModbusMode() const;
 	bool setModbusMode(MODBUS_MODE mode);
 	bool setTCPParameters(TCPParameters* tcpParameters);
 	bool setRTUParameters(RTUParameters* rtuParameters);
-	bool scanSlave(uint8_t slaveId);
+	bool createSession();
 
-	int readBits(int addr, int nb, uint8_t* dest);
-	int readInputBits(int addr, int nb, uint8_t* dest);
-	int readRegisters(int addr, int nb, uint16_t* dest);
-	int readInputRegisters(int addr, int nb, uint8_t* dest);
-	int writeBit(int coil_addr, int status);
-	int writeRegister(int reg_addr, int value);
-	int writeBits(int addr, int nb, const uint8_t *data);
-	int writeRegisters(int addr, int nb, const uint16_t *data);
-	int maskWriteRegister(int addr, uint16_t and_mask, uint16_t or_mask);
+	bool scanSlave(uint8_t slaveId);   
+	int readBits(int addr, int nb, uint8_t* dest) const;
+	int readInputBits(int addr, int nb, uint8_t* dest) const;
+	int readRegisters(int addr, int nb, uint16_t* dest) const;
+	int readInputRegisters(int addr, int nb, uint16_t* dest) const;
+	int writeBit(int coil_addr, int status) const;
+	int writeRegister(int reg_addr, int value) const;
+	int writeBits(int addr, int nb, const uint8_t *data) const;
+	int writeRegisters(int addr, int nb, const uint16_t *data) const;
+	int maskWriteRegister(int addr, uint16_t and_mask, uint16_t or_mask) const;
 	int writeAndReadRegisters(int write_addr, int write_nb,
 		const uint16_t *src, int read_addr, int read_nb,
-		uint16_t *dest);
+		uint16_t *dest) const;
 
 
 };

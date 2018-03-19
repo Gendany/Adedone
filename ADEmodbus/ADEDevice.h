@@ -19,6 +19,7 @@ private:
 	ADC* adc;
 	DeviceManager* manager;
 public:
+	bool initDevice();
 	uint8_t getDeviceID() const;
 	bool setDeviceID(uint8_t const deviceID);
 	bool readAllADCChannels(uint16_t* values) const;

@@ -7,21 +7,52 @@
 DeviceManager::DeviceManager()
 {
 	this->deviceCounter = 0;
-	this->deviceList = static_cast<ADEDevice**>(malloc(sizeof(this) * MAX_DEVICE_NUM));
-	memset(this->deviceList, NULL, sizeof(this)*MAX_DEVICE_NUM);
+	this->deviceList = nullptr;
 	this->deviceSecleted = -1; //None device seleted.
-	this->modbus = new FxModbus();
+	this->modbus = nullptr;
 
 }
 
 DeviceManager::~DeviceManager()
 {
-	for (int i = 0; i < MAX_DEVICE_NUM; i++) {
-		if (this->deviceList[i] != nullptr)
-			delete this->deviceList[i];
+	if(this->deviceList != nullptr)
+	{
+		for (int i = 0; i < MAX_DEVICE_NUM; i++) {
+			if (this->deviceList[i] != nullptr)
+				delete this->deviceList[i];
+		}
+		free(this->deviceList);
 	}
-	free(this->deviceList);
+
+	if (this->modbus != nullptr)
+		delete this->modbus;
+
 }
+
+
+/**
+ * \brief Initialize the manager, allocate memory for device list and new Fxmodbus instance.
+ * \return true initialization succedd;false failed
+ */
+bool DeviceManager::initManager()
+{
+	if (this->deviceList == nullptr)
+	{
+		this->deviceList = static_cast<ADEDevice**>(malloc(sizeof(this) * MAX_DEVICE_NUM));
+		if (this->deviceList == nullptr)
+			return  false;
+		memset(this->deviceList, NULL, sizeof(this)*MAX_DEVICE_NUM);	
+	}
+	if (this->modbus == nullptr )
+	{
+		this->modbus = new FxModbus();
+		if (this->modbus == nullptr)
+			return false;
+	}
+	return true;
+}
+
+
 
 bool DeviceManager::updateDeciceList()
 {

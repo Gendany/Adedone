@@ -2,11 +2,12 @@
 
 ADC::ADC(ADEDevice* owner)
 {
-	if (NULL == owner)
+	if (nullptr == owner)
 		throw ADEException("Owner is empty pointer.");
 	this->owner = owner;
 	memset(&channels, 0, sizeof(channels));
 	sampleRange = RANGE5;
+	this->isEnabled = false;
 }
 
 ADC::~ADC()
@@ -16,6 +17,11 @@ ADC::~ADC()
 
 bool ADC::enableADC(FxModbus * modbus)
 {
+	if (modbus == nullptr)
+		return false;
+
+	//Todo: According to protocol enable the adc.
+
 	return false;
 }
 

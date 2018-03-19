@@ -1,5 +1,4 @@
-﻿
-/*
+﻿/*
 * Copyright © 2008-2014 Stéphane Raimbault <stephane.raimbault@gmail.com>
 *
 * SPDX-License-Identifier: BSD-3-Clause
@@ -39,23 +38,23 @@ using namespace std;
 #define UT_INPUT_REGISTERS_ADDRESS 0
 #define UT_INPUT_REGISTERS_NB 10
 
-const static uint8_t UT_INPUT_BITS_TAB[UT_INPUT_BITS_NB] = { 2 };
-const static uint8_t UT_INPUT_REGISTERS_TAB[UT_INPUT_REGISTERS_NB] = { 1 };
+const static uint8_t UT_INPUT_BITS_TAB[UT_INPUT_BITS_NB] = {2};
+const static uint8_t UT_INPUT_REGISTERS_TAB[UT_INPUT_REGISTERS_NB] = {1};
+
 //#include "unit-test.h"
 //#define UT_BITS_NB 10
 //
 //const uint8_t UT_BITS_ADDRESS[UT_BITS_NB];
 
 
-
-
-enum {
+enum
+{
 	TCP,
 	TCP_PI,
 	RTU
 };
 
-int main(int argc, char*argv[])
+int main(int argc, char* argv[])
 {
 	//uint16_t a[8];
 	//cout << "sizeof a = " << sizeof(a) << endl;
@@ -69,43 +68,52 @@ int main(int argc, char*argv[])
 	//return 0;
 
 	int s = -1;
-	modbus_t *ctx;
-	modbus_mapping_t *mb_mapping;
+	modbus_t* ctx;
+	modbus_mapping_t* mb_mapping;
 	int rc;
 	int i;
 	int use_backend;
-	uint8_t *query;
+	uint8_t* query;
 	int header_length;
 
-	if (argc > 1) {
-		if (strcmp(argv[1], "tcp") == 0) {
+	if (argc > 1)
+	{
+		if (strcmp(argv[1], "tcp") == 0)
+		{
 			use_backend = TCP;
 		}
-		else if (strcmp(argv[1], "tcppi") == 0) {
+		else if (strcmp(argv[1], "tcppi") == 0)
+		{
 			use_backend = TCP_PI;
 		}
-		else if (strcmp(argv[1], "rtu") == 0) {
+		else if (strcmp(argv[1], "rtu") == 0)
+		{
 			use_backend = RTU;
 		}
-		else {
+		else
+		{
 			printf("Usage:\n  %s [tcp|tcppi|rtu] - Modbus server for unit testing\n\n", argv[0]);
 			return -1;
 		}
 	}
-	else {
+	else
+	{
 		/* By default */
 		use_backend = RTU;
 	}
 
-	if (use_backend == TCP) {
+	if (use_backend == TCP)
+	{
 		ctx = modbus_new_tcp("127.0.0.1", 1502);
 		query = (uint8_t*)malloc(MODBUS_TCP_MAX_ADU_LENGTH);
 	}
-	else if (use_backend == TCP_PI) {
+	else if (use_backend == TCP_PI)
+	{
 		ctx = modbus_new_tcp_pi("::0", "1502");
 		query = (uint8_t*)malloc(MODBUS_TCP_MAX_ADU_LENGTH);
 	}
-	else {
+	else
+	{
 		ctx = modbus_new_rtu("COM4", 9600, 'E', 8, 1);
 		modbus_set_slave(ctx, SERVER_ID);
 		query = (uint8_t*)malloc(MODBUS_RTU_MAX_ADU_LENGTH);
@@ -119,9 +127,10 @@ int main(int argc, char*argv[])
 		UT_INPUT_BITS_ADDRESS, UT_INPUT_BITS_NB,
 		UT_REGISTERS_ADDRESS, UT_REGISTERS_NB_MAX,
 		UT_INPUT_REGISTERS_ADDRESS, UT_INPUT_REGISTERS_NB);
-	if (mb_mapping == NULL) {
+	if (mb_mapping == NULL)
+	{
 		fprintf(stderr, "Failed to allocate the mapping: %s\n",
-			modbus_strerror(errno));
+		        modbus_strerror(errno));
 		modbus_free(ctx);
 		return -1;
 	}
@@ -131,39 +140,48 @@ int main(int argc, char*argv[])
 
 	/* Initialize input values that's can be only done server side. */
 	modbus_set_bits_from_bytes(mb_mapping->tab_input_bits, 0, UT_INPUT_BITS_NB,
-		UT_INPUT_BITS_TAB);
+	                           UT_INPUT_BITS_TAB);
 
 	/* Initialize values of INPUT REGISTERS */
-	for (i = 0; i < UT_INPUT_REGISTERS_NB; i++) {
+	for (i = 0; i < UT_INPUT_REGISTERS_NB; i++)
+	{
 		mb_mapping->tab_input_registers[i] = UT_INPUT_REGISTERS_TAB[i];;
 	}
 
-	if (use_backend == TCP) {
+	if (use_backend == TCP)
+	{
 		s = modbus_tcp_listen(ctx, 1);
 		modbus_tcp_accept(ctx, &s);
 	}
-	else if (use_backend == TCP_PI) {
+	else if (use_backend == TCP_PI)
+	{
 		s = modbus_tcp_pi_listen(ctx, 1);
 		modbus_tcp_pi_accept(ctx, &s);
 	}
-	else {
+	else
+	{
 		rc = modbus_connect(ctx);
-		if (rc == -1) {
+		if (rc == -1)
+		{
 			fprintf(stderr, "Unable to connect %s\n", modbus_strerror(errno));
 			modbus_free(ctx);
 			return -1;
 		}
 	}
 
-	for (;;) {
-		do {
+	for (;;)
+	{
+		do
+		{
 			rc = modbus_receive(ctx, query);
 			/* Filtered queries return 0 */
-		} while (rc == 0);
+		}
+		while (rc == 0);
 
 		/* The connection is not closed on errors which require on reply such as
 		bad CRC in RTU. */
-		if (rc == -1 && errno != EMBBADCRC) {
+		if (rc == -1 && errno != EMBBADCRC)
+		{
 			/* Quit */
 			break;
 		}
@@ -230,15 +248,18 @@ int main(int argc, char*argv[])
 		//}
 
 		rc = modbus_reply(ctx, query, rc, mb_mapping);
-		if (rc == -1) {
+		if (rc == -1)
+		{
 			break;
 		}
 	}
 
 	printf("Quit the loop: %s\n", modbus_strerror(errno));
 
-	if (use_backend == TCP) {
-		if (s != -1) {
+	if (use_backend == TCP)
+	{
+		if (s != -1)
+		{
 			closesocket(s);
 		}
 	}
@@ -250,10 +271,6 @@ int main(int argc, char*argv[])
 
 	return 0;
 }
-
-
-
-
 
 
 //#include <iostream>

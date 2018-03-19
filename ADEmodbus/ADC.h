@@ -10,8 +10,9 @@
 
 enum SAMPLE_RANGE
 {
-	RANGE5,		//ADC sample range [-5, 5]
-	RANGE10		//ADC sample range [-10, 10] 
+	RANGE5,			//ADC sample range [-5, 5]
+	RANGE10,		//ADC sample range [-10, 10] 
+	INVALID_RANGE
 };
 class ADC
 {
@@ -23,6 +24,7 @@ private:
 	uint16_t channels[CHANNEL_NUM];
 	ADEDevice* owner;
 	uint8_t sampleRange;
+	bool isEnabled;
 public:
 	bool enableADC(FxModbus* modbus);
 	bool disableADC(FxModbus* modbus);
